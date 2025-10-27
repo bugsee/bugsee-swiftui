@@ -49,8 +49,19 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 extension View {
+    @ViewBuilder
     public func bugseeProtect(_ completion: @escaping (UIView) -> ()) -> some View {
-        bugseeOverlay(BugseeProtectedOverlayUIView(completion: completion))
+        if #available(iOS 26.1, *) {
+            bugseeOverlay261(BugseeProtectedOverlayUIView(completion: completion))
+        } else {
+            bugseeOverlay(BugseeProtectedOverlayUIView(completion: completion))
+        }
+    }
+    
+    public func bugseeProtect() -> some View {
+        bugseeOverlay(BugseeProtectedOverlayUIView() { view in
+            view.bugseeProtectedView = true
+        })
     }
     
     fileprivate func bugseeOverlay<SomeView>(_ view: SomeView) -> some View where SomeView: View {
@@ -58,6 +69,16 @@ extension View {
             view.frame(width: geometry.size.width, height: geometry.size.height)
                 .allowsHitTesting(false)
         })
+    }
+    
+    @available(iOS 26.1, *)
+    fileprivate func bugseeOverlay261<SomeView>(_ view: SomeView) -> some View where SomeView: View {
+        overlay {
+            GeometryReader { geometry in
+                view.frame(width: geometry.size.width, height: geometry.size.height)
+                    .allowsHitTesting(false)
+            }
+        }
     }
 }
 
