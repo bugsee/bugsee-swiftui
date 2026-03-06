@@ -100,11 +100,9 @@ public struct BugseeProtectedOverlayUIView: UIViewRepresentable {
         _ uiView: UIView,
         context: UIViewRepresentableContext<BugseeProtectedOverlayUIView>
     ) {
-        DispatchQueue.main.async {
-            uiView.isUserInteractionEnabled = false
-            uiView.backgroundColor = .clear
-            self.completion(uiView)
-        }
+        uiView.isUserInteractionEnabled = false
+        uiView.backgroundColor = .clear
+        self.completion(uiView)
     }
 }
 
