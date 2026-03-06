@@ -63,6 +63,15 @@ extension View {
             view.bugseeProtectedView = true
         })
     }
+
+    @ViewBuilder
+    public func bugseeProtect(isEnabled: Binding<Bool>) -> some View {
+        if #available(iOS 26.1, *) {
+            bugseeOverlay261(BugseeProtectedOverlayUIView(isProtected: isEnabled))
+        } else {
+            bugseeOverlay(BugseeProtectedOverlayUIView(isProtected: isEnabled))
+        }
+    }
     
     fileprivate func bugseeOverlay<SomeView>(_ view: SomeView) -> some View where SomeView: View {
         overlay(GeometryReader{ geometry in
@@ -85,9 +94,13 @@ extension View {
 @available(iOS 13.0, *)
 public struct BugseeProtectedOverlayUIView: UIViewRepresentable {
     
-    let completion: (UIView) -> Void
+    let completion: ((UIView) -> ())?
     
-    public init(completion: @escaping (UIView) -> Void) {
+    @Binding var isProtected: Bool
+    
+    public init(isProtected: Binding<Bool> = .constant(true),
+                completion: ((UIView) -> Void)? = nil) {
+        _isProtected = isProtected
         self.completion = completion
     }
     
@@ -102,7 +115,12 @@ public struct BugseeProtectedOverlayUIView: UIViewRepresentable {
     ) {
         uiView.isUserInteractionEnabled = false
         uiView.backgroundColor = .clear
-        self.completion(uiView)
+        
+         if let completion = completion {
+            completion(uiView)
+        } else {
+            uiView.bugseeProtectedView = isProtected
+        }
     }
 }
 
