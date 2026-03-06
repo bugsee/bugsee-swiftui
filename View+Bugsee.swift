@@ -4,7 +4,7 @@
 ///
 /// The MIT License (MIT)
 ///
-/// Copyright (c) 2021 Bugsee
+/// Copyright (c) 2026 Bugsee
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -27,18 +27,24 @@
 
 // Usage:
 /*
+// Static protection (always hidden):
 Text(landmark.description)
-    .bugseeProtect { view in
-        view.bugseeProtectedView = true
+    .bugseeProtect()
+
+// Dynamic protection (driven by @State or @Binding):
+@State private var isHidden = false
+
+Text(landmark.description)
+    .bugseeProtect(isEnabled: $isHidden)
+    .onAppear {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            isHidden = true
+        }
     }
-*/
 
 // If your View has offsets then you should call .bugseeProtect first:
-/*
 CircleImage(image: landmark.image)
-    .bugseeProtect { view in
-        view.bugseeProtectedView = true
-    }
+    .bugseeProtect()
     .offset(y: -130)
 */
 
