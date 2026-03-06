@@ -49,6 +49,8 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 extension View {
+    
+    @available(*, deprecated, message: "Use bugseeProtect() or bugseeProtect(isEnabled:) instead. The closure variant will be removed in the future.")
     @ViewBuilder
     public func bugseeProtect(_ completion: @escaping (UIView) -> ()) -> some View {
         if #available(iOS 26.1, *) {
@@ -58,12 +60,11 @@ extension View {
         }
     }
     
+    @ViewBuilder
     public func bugseeProtect() -> some View {
-        bugseeOverlay(BugseeProtectedOverlayUIView() { view in
-            view.bugseeProtectedView = true
-        })
+        bugseeProtect(isEnabled: .constant(true))
     }
-
+    
     @ViewBuilder
     public func bugseeProtect(isEnabled: Binding<Bool>) -> some View {
         if #available(iOS 26.1, *) {
