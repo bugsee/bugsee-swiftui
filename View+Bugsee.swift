@@ -91,14 +91,14 @@ public struct BugseeProtectedOverlayUIView: UIViewRepresentable {
         self.completion = completion
     }
     
-    public func makeUIView(context: UIViewRepresentableContext<BugseeProtectedOverlayUIView>) -> UIView {
+    public func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         return view
     }
     
     public func updateUIView(
         _ uiView: UIView,
-        context: UIViewRepresentableContext<BugseeProtectedOverlayUIView>
+        context: Context
     ) {
         uiView.isUserInteractionEnabled = false
         uiView.backgroundColor = .clear
