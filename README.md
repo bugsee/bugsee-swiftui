@@ -24,13 +24,25 @@ struct BugseeSwiftUIApp: App {
 
 ## Protecting views
 
-All system secure fields ([SecureField](https://developer.apple.com/documentation/swiftui/securefield)) are hidden from the recorded video automatically. In addition we support a way to mark your custom sensitive views so they will be treated similarly. We provide View extension for this ([View+Bugsee.swift](https://github.com/bugsee/bugsee-swiftui)) which contains _bugseeProtect(completion:)_ method.
+All system secure fields ([SecureField](https://developer.apple.com/documentation/swiftui/securefield)) are hidden from the recorded video automatically. In addition we support a way to mark your custom sensitive views so they will be treated similarly. We provide a View extension for this ([View+Bugsee.swift](https://github.com/bugsee/bugsee-swiftui)) with `bugseeProtect()` and `bugseeProtect(isEnabled:)` methods.
+
+**Static protection** (view is always hidden):
 
 ```swift
-    Text("HelloWorld")
-        .bugseeProtect { view in
-            // The usual way
-            // Mark provided view as bugseeProtectedView
-            view.bugseeProtectedView = true
+Text(landmark.description)
+    .bugseeProtect()
+```
+
+**Dynamic protection** (visibility controlled by state or binding):
+
+```swift
+@State private var isHidden = false
+
+Text(landmark.description)
+    .bugseeProtect(isEnabled: $isHidden)
+    .onAppear {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            isHidden = true
         }
+    }
 ```
