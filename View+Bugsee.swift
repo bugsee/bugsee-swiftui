@@ -4,7 +4,7 @@
 ///
 /// The MIT License (MIT)
 ///
-/// Copyright (c) 2021 Bugsee
+/// Copyright (c) 2026 Bugsee
 ///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -27,18 +27,24 @@
 
 // Usage:
 /*
+// Static protection (always hidden):
 Text(landmark.description)
-    .bugseeProtect { view in
-        view.bugseeProtectedView = true
+    .bugseeProtect()
+
+// Dynamic protection (driven by @State or @Binding):
+@State private var isHidden = false
+
+Text(landmark.description)
+    .bugseeProtect(isEnabled: $isHidden)
+    .onAppear {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            isHidden = true
+        }
     }
-*/
 
 // If your View has offsets then you should call .bugseeProtect first:
-/*
 CircleImage(image: landmark.image)
-    .bugseeProtect { view in
-        view.bugseeProtectedView = true
-    }
+    .bugseeProtect()
     .offset(y: -130)
 */
 
@@ -49,6 +55,8 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 extension View {
+    
+    @available(*, deprecated, message: "Use bugseeProtect() or bugseeProtect(isEnabled:) instead. The closure variant will be removed in the future.")
     @ViewBuilder
     public func bugseeProtect(_ completion: @escaping (UIView) -> ()) -> some View {
         if #available(iOS 26.1, *) {
@@ -58,10 +66,18 @@ extension View {
         }
     }
     
+    @ViewBuilder
     public func bugseeProtect() -> some View {
-        bugseeOverlay(BugseeProtectedOverlayUIView() { view in
-            view.bugseeProtectedView = true
-        })
+        bugseeProtect(isEnabled: .constant(true))
+    }
+    
+    @ViewBuilder
+    public func bugseeProtect(isEnabled: Binding<Bool>) -> some View {
+        if #available(iOS 26.1, *) {
+            bugseeOverlay261(BugseeProtectedOverlayUIView(isProtected: isEnabled))
+        } else {
+            bugseeOverlay(BugseeProtectedOverlayUIView(isProtected: isEnabled))
+        }
     }
     
     fileprivate func bugseeOverlay<SomeView>(_ view: SomeView) -> some View where SomeView: View {
@@ -85,25 +101,32 @@ extension View {
 @available(iOS 13.0, *)
 public struct BugseeProtectedOverlayUIView: UIViewRepresentable {
     
-    let completion: (UIView) -> Void
+    let completion: ((UIView) -> ())?
     
-    public init(completion: @escaping (UIView) -> Void) {
+    @Binding var isProtected: Bool
+    
+    public init(isProtected: Binding<Bool> = .constant(true),
+                completion: ((UIView) -> Void)? = nil) {
+        _isProtected = isProtected
         self.completion = completion
     }
     
-    public func makeUIView(context: UIViewRepresentableContext<BugseeProtectedOverlayUIView>) -> UIView {
+    public func makeUIView(context: Context) -> UIView {
         let view = UIView(frame: .zero)
         return view
     }
     
     public func updateUIView(
         _ uiView: UIView,
-        context: UIViewRepresentableContext<BugseeProtectedOverlayUIView>
+        context: Context
     ) {
-        DispatchQueue.main.async {
-            uiView.isUserInteractionEnabled = false
-            uiView.backgroundColor = .clear
-            self.completion(uiView)
+        uiView.isUserInteractionEnabled = false
+        uiView.backgroundColor = .clear
+        
+         if let completion = completion {
+            completion(uiView)
+        } else {
+            uiView.bugseeProtectedView = isProtected
         }
     }
 }
