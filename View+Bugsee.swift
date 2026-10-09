@@ -52,6 +52,7 @@ CircleImage(image: landmark.image)
 
 import Foundation
 import SwiftUI
+import Bugsee
 
 @available(iOS 13.0, *)
 extension View {
@@ -59,8 +60,8 @@ extension View {
     @available(*, deprecated, message: "Use bugseeProtect() or bugseeProtect(isEnabled:) instead. The closure variant will be removed in the future.")
     @ViewBuilder
     public func bugseeProtect(_ completion: @escaping (UIView) -> ()) -> some View {
-        if #available(iOS 26.1, *) {
-            bugseeOverlay261(BugseeProtectedOverlayUIView(completion: completion))
+        if #available(iOS 15.0, *) {
+            bugseeOverlay15(BugseeProtectedOverlayUIView(completion: completion))
         } else {
             bugseeOverlay(BugseeProtectedOverlayUIView(completion: completion))
         }
@@ -73,8 +74,8 @@ extension View {
     
     @ViewBuilder
     public func bugseeProtect(isEnabled: Binding<Bool>) -> some View {
-        if #available(iOS 26.1, *) {
-            bugseeOverlay261(BugseeProtectedOverlayUIView(isProtected: isEnabled))
+        if #available(iOS 15.0, *) {
+            bugseeOverlay15(BugseeProtectedOverlayUIView(isProtected: isEnabled))
         } else {
             bugseeOverlay(BugseeProtectedOverlayUIView(isProtected: isEnabled))
         }
@@ -87,8 +88,8 @@ extension View {
         })
     }
     
-    @available(iOS 26.1, *)
-    fileprivate func bugseeOverlay261<SomeView>(_ view: SomeView) -> some View where SomeView: View {
+    @available(iOS 15.0, *)
+    fileprivate func bugseeOverlay15<SomeView>(_ view: SomeView) -> some View where SomeView: View {
         overlay {
             GeometryReader { geometry in
                 view.frame(width: geometry.size.width, height: geometry.size.height)
